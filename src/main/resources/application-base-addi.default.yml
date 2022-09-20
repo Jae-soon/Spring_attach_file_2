@@ -1,8 +1,0 @@
-# 이 파일의 이름에서 .default를 제거해주세요.
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            clientId: [여기에 여러분의 카카오앱의 REST KEY를 넣어주세요.]
