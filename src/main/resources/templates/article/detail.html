@@ -29,6 +29,12 @@
         <div>
             내용 : [[${article.content}]]
         </div>
+
+        <div th:each="entry : ${article.extra.genFileMap}">
+            <img th:src="@{${entry.value.url}}" alt="">
+        </div>
+
+
     </div>
 </section>
 </body>
