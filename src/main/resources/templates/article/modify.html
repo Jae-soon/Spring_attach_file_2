@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/layout.html}">
+
+<head>
+  <title>글수정</title>
+</head>
+
+<body>
+<section layout:fragment="content">
+  <div class="container">
+    <h1>글수정</h1>
+
+    <script>
+      function ModifyForm__submit(form) {
+        form.subject.value = form.subject.value.trim();
+
+        if (form.subject.value.length == 0) {
+          alert("제목을 입력해주세요.");
+          form.subject.focus();
+          return;
+        }
+
+        form.content.value = form.content.value.trim();
+
+        if (form.content.value.length == 0) {
+          alert("내용을 입력해주세요.");
+          form.content.focus();
+          return;
+        }
+
+        form.submit();
+      }
+
+    </script>
+
+
+    <form th:action method="POST" enctype="multipart/form-data" onsubmit="ModifyForm__submit(this); return false;">
+      <div>
+        <span>제목</span>
+        <input type="text" name="subject" th:value="${article.subject}">
+      </div>
+      <div>
+        <span>내용</span>
+        <textarea name="content" th:text="${article.content}"></textarea>
+      </div>
+      <div>
+        <span>본문이미지</span>
+        <div>
+          <input type="file" name="common__inBody__1" accept="image/png, image/gif, image/jpeg">
+        </div>
+        <div>
+          <input type="file" name="common__inBody__2" accept="image/png, image/gif, image/jpeg">
+        </div>
+      </div>
+      <div>
+        <span>글수정</span>
+        <input type="submit" value="작성">
+      </div>
+    </form>
+  </div>
+</section>
+</body>
+</html>
