@@ -42,10 +42,7 @@ public class ArticleController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/write")
-    public String write(@AuthenticationPrincipal MemberContext memberContext, @Valid ArticleForm articleForm, MultipartRequest multipartRequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "article/write";
-        }
+    public String write(@AuthenticationPrincipal MemberContext memberContext, @Valid ArticleForm articleForm, MultipartRequest multipartRequest) {
 
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
         Article article = articleService.write(memberContext.getId(), articleForm.getSubject(), articleForm.getContent());
@@ -85,15 +82,21 @@ public class ArticleController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/modify")
-    public String modify(@AuthenticationPrincipal MemberContext memberContext, Model model, @PathVariable Long id, @Valid ArticleForm articleForm) {
+    @ResponseBody
+    public String modify(@AuthenticationPrincipal MemberContext memberContext, Model model, @PathVariable Long id,
+                         @Valid ArticleForm articleForm, MultipartRequest multipartRequest, @RequestParam Map<String, String> params) {
         Article article = articleService.getForPrintArticleById(id);
 
         if (memberContext.memberIsNot(article.getAuthor())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        articleService.modify(article, articleForm.getSubject(), articleForm.getContent());
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
 
+        genFileService.deleteFiles(article, params);
+        RsData<Map<String, GenFile>> saveFilesRsData = genFileService.saveFiles(article, fileMap);
+
+        articleService.modify(article, articleForm.getSubject(), articleForm.getContent());
         String msg = Util.url.encode("%d번 게시물이 수정되었습니다.".formatted(id));
         return "redirect:/article/%d?msg=%s".formatted(id, msg);
     }
