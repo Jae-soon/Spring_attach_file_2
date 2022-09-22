@@ -4,23 +4,31 @@ import com.ll.exam.app10.app.article.entity.Article;
 import com.ll.exam.app10.app.article.repository.ArticleRepository;
 import com.ll.exam.app10.app.fileUpload.entity.GenFile;
 import com.ll.exam.app10.app.fileUpload.service.GenFileService;
+import com.ll.exam.app10.app.hashTag.service.HashTagService;
 import com.ll.exam.app10.app.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
     private final ArticleRepository articleRepository;
     private final GenFileService genFileService;
+    private final HashTagService hashTagService;
 
     public Article write(Long authorId, String subject, String content) {
         return write(new Member(authorId), subject, content);
     }
 
     public Article write(Member author, String subject, String content) {
+        return write(author, subject, content, "");
+    }
+
+    public Article write(Member author, String subject, String content, String hashTagsStr) {
         Article article = Article
                 .builder()
                 .author(author)
@@ -29,6 +37,8 @@ public class ArticleService {
                 .build();
 
         articleRepository.save(article);
+
+        hashTagService.applyHashTags(article, hashTagsStr);
 
         return article;
     }
