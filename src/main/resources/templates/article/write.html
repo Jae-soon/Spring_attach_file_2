@@ -53,16 +53,13 @@
             </div>
             <div>
                 <span>해시태그</span>
-                <input type="text" name="hashTags">
+                <input type="text" name="hashTagContents" placeholder="#태그1 #태그2" />
             </div>
             <div>
                 <span>본문이미지</span>
                 <div>
                     <input type="file" name="common__inBody__1" accept="image/png, image/gif, image/jpeg">
                 </div>
-                <div>
-                </div>
-
                 <th:block th:each="i : ${#numbers.sequence(1, 5)}">
                     <div>
                         <span th:text="|${i}번 이미지|"></span>
@@ -72,7 +69,7 @@
             </div>
             <div>
                 <span>글쓰기</span>
-                <input type="submit" value="수정">
+                <input type="submit" value="작성">
             </div>
         </form>
     </div>

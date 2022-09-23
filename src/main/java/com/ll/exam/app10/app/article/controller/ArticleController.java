@@ -10,19 +10,18 @@ import com.ll.exam.app10.app.security.dto.MemberContext;
 import com.ll.exam.app10.util.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.PermissionDeniedDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -45,7 +44,7 @@ public class ArticleController {
     public String write(@AuthenticationPrincipal MemberContext memberContext, @Valid ArticleForm articleForm, MultipartRequest multipartRequest) {
 
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
-        Article article = articleService.write(memberContext.getId(), articleForm.getSubject(), articleForm.getContent());
+        Article article = articleService.write(memberContext.getId(), articleForm.getSubject(), articleForm.getContent(), articleForm.getHashTagContents());
 
         RsData<Map<String, GenFile>> saveFilesRsData = genFileService.saveFiles(article, fileMap);
 
@@ -82,7 +81,6 @@ public class ArticleController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/modify")
-    @ResponseBody
     public String modify(@AuthenticationPrincipal MemberContext memberContext, Model model, @PathVariable Long id,
                          @Valid ArticleForm articleForm, MultipartRequest multipartRequest, @RequestParam Map<String, String> params) {
         Article article = articleService.getForPrintArticleById(id);
@@ -96,8 +94,16 @@ public class ArticleController {
         genFileService.deleteFiles(article, params);
         RsData<Map<String, GenFile>> saveFilesRsData = genFileService.saveFiles(article, fileMap);
 
-        articleService.modify(article, articleForm.getSubject(), articleForm.getContent());
+        articleService.modify(article, articleForm.getSubject(), articleForm.getContent(), articleForm.getHashTagContents());
         String msg = Util.url.encode("%d번 게시물이 수정되었습니다.".formatted(id));
         return "redirect:/article/%d?msg=%s".formatted(id, msg);
+    }
+
+    @GetMapping("list")
+    public String showList(Model model) {
+        List<Article> articles = articleService.getArticles();
+        model.addAttribute("articles", articles);
+
+        return "article/list";
     }
 }
